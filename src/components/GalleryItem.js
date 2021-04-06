@@ -1,43 +1,42 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useOverrides } from '@quarkly/components';
 import { Box, Image } from '@quarkly/widgets';
 import GalleryLoader from './GalleryLoader';
 const overrides = {
 	'Loader': {
-		'kind': 'Icon'
+		kind: 'Icon'
 	}
 };
 
 const GalleryItem = ({
-	columsCountProp,
-	rowsCountProp,
-	imagesAutoResizeProp,
-	showImageProp,
-	srcPreview,
-	srcSetPreview,
-	sizesPreview,
-	altPreview,
-	titlePreview,
-	objectFitPreview,
-	objectPositionPreview,
-	loadingPreview,
-	srcFull,
-	srcSetFull,
-	sizesFull,
-	altFull,
-	titleFull,
-	objectFitFull,
-	objectPositionFull,
-	loadingFull,
+	columsNumb,
+	rowsNumb,
+	stretchFull,
+	showFullImage,
+	previewSrc,
+	previewSrcSet,
+	previewSizes,
+	previewAlt,
+	previewTitle,
+	previewObjectFit,
+	previewObjectPosition,
+	previewLoading,
+	fullSrc,
+	fullSrcSet,
+	fullSizes,
+	fullAlt,
+	fullTitle,
+	fullObjectFit,
+	fullObjectPosition,
+	fullLoading,
+	defaultPreviewImageSrc,
 	index,
 	loadImage,
-	addPictureParams,
+	addImageParams,
 	setOpen,
 	galleryItemWidth,
-	ratioSizes,
-	setRatioSizes,
-	setSomePictureParams,
-	setClicked,
+	setSomeImageFullParams,
+	setImageClicked,
 	ratioFormatsProp,
 	imagesMinWidthProp,
 	imagesMaxWidthProp,
@@ -45,54 +44,53 @@ const GalleryItem = ({
 	columnsCountProp,
 	borderWidthProp,
 	previewLoaderStatusProp,
-	defaultPreviewSrc,
-	defaultFullSrc,
 	...props
 }) => {
-	const {
-		override,
-		rest
-	} = useOverrides(props, overrides);
-	const [isLoading, setLoading] = useState(true);
 	const boxRef = useRef();
-	addPictureParams(index, {
-		srcFull,
-		srcSetFull,
-		sizesFull,
-		altFull,
-		titleFull,
-		objectFitFull,
-		objectPositionFull,
-		loadingFull
+	const [isLoadingPreview, setLoadingPreview] = useState(true);
+	const [aspectRatioStyles, setAspectRatioStyles] = useState({
+		width: 'auto',
+		height: 'auto'
 	});
+	const correctSrcPreview = useMemo(() => previewSrc || defaultPreviewImageSrc, [previewSrc]);
 	useEffect(() => {
-		setOpen(showImageProp);
-	}, [showImageProp]);
+		setOpen(showFullImage);
+	}, [showFullImage]);
 	useEffect(() => {
-		loadImage(srcPreview || defaultPreviewSrc).then(img => {
-			setLoading(false);
-		});
+		loadImage(correctSrcPreview).then(() => setLoadingPreview(false));
 	}, []);
-	const openGalleryItem = useCallback(() => {
-		setSomePictureParams({
-			'src': srcFull || defaultFullSrc,
-			'srcset': srcSetFull,
-			'sizes': sizesFull,
-			'alt': altFull,
-			'title': titleFull,
-			'object-position': objectFitFull,
-			'object-fit': objectPositionFull,
-			'loading': loadingFull
+	useEffect(() => {
+		addImageParams(index, {
+			fullSrc,
+			fullSrcSet,
+			fullSizes,
+			fullAlt,
+			fullTitle,
+			fullObjectFit,
+			fullObjectPosition,
+			fullLoading
 		});
-		setClicked(true);
-	});
-	const changeFormat = useCallback((format, sizes) => {
+	}, [index]);
+	const openGalleryItem = useCallback(() => {
+		setSomeImageFullParams({
+			'src': fullSrc,
+			'srcset': fullSrcSet,
+			'sizes': fullSizes,
+			'alt': fullAlt,
+			'title': fullTitle,
+			'object-position': fullObjectFit,
+			'object-fit': fullObjectPosition,
+			'loading': fullLoading
+		});
+		setImageClicked(true);
+	}, [fullSrc, fullSrcSet, fullSizes, fullAlt, fullTitle, fullObjectFit, fullObjectPosition, fullLoading]);
+	const changeAspectRatio = useCallback((ratio, itemSizes) => {
 		const params = {
 			width: galleryItemWidth,
-			height: sizes.height
+			height: itemSizes.height
 		};
 
-		switch (format) {
+		switch (ratio) {
 			case '16:9':
 				params.height = 9 * params.width / 16;
 				break;
@@ -126,47 +124,51 @@ const GalleryItem = ({
 				params.width = 'auto';
 		}
 
-		setRatioSizes(params);
+		setAspectRatioStyles(params);
 	}, [ratioFormatsProp, columnsCountProp, borderWidthProp, imagesMinWidthProp, imagesMaxWidthProp, autoFillInProp, galleryItemWidth]);
 	useEffect(() => {
-		const sizes = boxRef.current.getBoundingClientRect();
-		changeFormat(ratioFormatsProp, sizes);
-	}, [ratioFormatsProp, columnsCountProp, borderWidthProp, imagesMinWidthProp, imagesMaxWidthProp, autoFillInProp, galleryItemWidth]);
+		const itemSizes = boxRef.current.getBoundingClientRect();
+		changeAspectRatio(ratioFormatsProp, itemSizes);
+	}, [boxRef.current, ratioFormatsProp, columnsCountProp, borderWidthProp, imagesMinWidthProp, imagesMaxWidthProp, autoFillInProp, galleryItemWidth]);
+	const {
+		override,
+		rest
+	} = useOverrides(props, overrides);
 	return <Box
 		ref={boxRef}
-		{...rest}
+		height='auto'
+		position='relative'
 		min-width='auto'
 		min-height='auto'
-		grid-column={`span ${columsCountProp}`}
-		grid-row={`span ${rowsCountProp}`}
-		position='relative'
-		height='auto'
+		grid-column={`span ${columsNumb}`}
+		grid-row={`span ${rowsNumb}`}
+		{...rest}
 	>
 		 
 		<Image
 			onClick={openGalleryItem}
 			max-width='100%'
 			max-height='100%'
-			min-width={imagesAutoResizeProp ? '100%' : 'auto'}
-			min-height={imagesAutoResizeProp ? '100%' : 'auto'}
-			object-fit={imagesAutoResizeProp ? 'cover' : objectFitPreview}
-			srcset={srcSetPreview}
-			sizes={sizesPreview}
-			title={titlePreview}
-			object-position={objectPositionPreview}
-			alt={altPreview}
-			loading={loadingPreview}
-			opacity={isLoading ? '0' : '1'}
-			src={isLoading ? '' : srcPreview || defaultPreviewSrc}
-			{...ratioSizes}
+			min-width={stretchFull ? '100%' : 'auto'}
+			min-height={stretchFull ? '100%' : 'auto'}
+			object-fit={stretchFull ? 'cover' : previewObjectFit}
+			opacity={isLoadingPreview ? '0' : '1'}
+			src={!isLoadingPreview && correctSrcPreview}
+			srcset={!isLoadingPreview && previewSrcSet}
+			title={!isLoadingPreview && previewTitle}
+			alt={!isLoadingPreview && previewAlt}
+			sizes={!isLoadingPreview && previewSizes}
+			object-position={!isLoadingPreview && previewObjectPosition}
+			loading={!isLoadingPreview && previewLoading}
+			{...aspectRatioStyles}
 		/>
-		  
-		{previewLoaderStatusProp ? '' : <GalleryLoader {...override('Loader')} isLoading={isLoading} />}
+		     
+		{!previewLoaderStatusProp && <GalleryLoader {...override('Loader')} isLoadingPreview={isLoadingPreview} />}
 	</Box>;
 };
 
 const propInfo = {
-	columsCountProp: {
+	columsNumb: {
 		title: 'Ширина в столбцах',
 		description: {
 			en: 'Количество столбцов, которое должно занимать изображение'
@@ -175,7 +177,7 @@ const propInfo = {
 		category: 'Main',
 		weight: 1
 	},
-	rowsCountProp: {
+	rowsNumb: {
 		title: 'Высота в колонках',
 		description: {
 			en: 'Количество колонок, которое должно занимать изображение'
@@ -184,7 +186,7 @@ const propInfo = {
 		category: 'Main',
 		weight: 1
 	},
-	imagesAutoResizeProp: {
+	stretchFull: {
 		title: 'Растянуть на всю ширину и высоту',
 		description: {
 			en: 'Растягивать изображения на всю ширину и высоту, если есть свободное пространство'
@@ -193,7 +195,7 @@ const propInfo = {
 		category: 'images',
 		weight: 1
 	},
-	showImageProp: {
+	showFullImage: {
 		title: 'Показать изображение',
 		description: {
 			ru: 'Показать полное изображение'
@@ -202,7 +204,7 @@ const propInfo = {
 		category: 'images',
 		weight: 1
 	},
-	srcPreview: {
+	previewSrc: {
 		weight: 1,
 		control: "image",
 		category: "Image preview",
@@ -212,7 +214,7 @@ const propInfo = {
 			ru: "src — aдрес изображения"
 		}
 	},
-	srcSetPreview: {
+	previewSrcSet: {
 		title: "Srcset",
 		weight: 1,
 		type: "string",
@@ -224,7 +226,7 @@ const propInfo = {
 			ru: "srcSet — строка, определяющая один или несколько источников изображений с дескрипторами"
 		}
 	},
-	sizesPreview: {
+	previewSizes: {
 		title: "Sizes",
 		weight: 1,
 		type: "string",
@@ -236,7 +238,7 @@ const propInfo = {
 			ru: "sizes — размеры контейнера изображения из srcSet для различных брейкпоинтов"
 		}
 	},
-	altPreview: {
+	previewAlt: {
 		title: "Alt",
 		weight: 1,
 		type: "string",
@@ -246,7 +248,7 @@ const propInfo = {
 			ru: "alt — текст, который будет отображаться когда изображение недоступно"
 		}
 	},
-	titlePreview: {
+	previewTitle: {
 		title: "Title",
 		weight: 1,
 		type: "string",
@@ -256,7 +258,7 @@ const propInfo = {
 			ru: "title — описывает содержимое элемента в виде всплывающей подсказки"
 		}
 	},
-	objectFitPreview: {
+	previewObjectFit: {
 		title: "Object fit",
 		weight: 1,
 		type: "string",
@@ -268,7 +270,7 @@ const propInfo = {
 			ru: "object-fit — определяет, как содержимое заменяемого элемента должно заполнять контейнер"
 		}
 	},
-	objectPositionPreview: {
+	previewObjectPosition: {
 		title: "Object position",
 		weight: 1,
 		type: "string",
@@ -278,7 +280,7 @@ const propInfo = {
 			ru: "object-position — задаёт положение содержимого замещаемого элемента внутри контейнера относительно координатных осей X и Y"
 		}
 	},
-	loadingPreview: {
+	previewLoading: {
 		title: "Loading",
 		weight: 1,
 		type: "string",
@@ -290,7 +292,7 @@ const propInfo = {
 			ru: "loading — указывает как браузер должен загружать изображение"
 		}
 	},
-	srcFull: {
+	fullSrc: {
 		weight: 1,
 		control: "image",
 		category: "Image Full",
@@ -300,7 +302,7 @@ const propInfo = {
 			ru: "src — aдрес изображения"
 		}
 	},
-	srcSetFull: {
+	fullSrcSet: {
 		title: "Srcset",
 		weight: 1,
 		type: "string",
@@ -312,7 +314,7 @@ const propInfo = {
 			ru: "srcSet — строка, определяющая один или несколько источников изображений с дескрипторами"
 		}
 	},
-	sizesFull: {
+	fullSizes: {
 		title: "Sizes",
 		weight: 1,
 		type: "string",
@@ -324,7 +326,7 @@ const propInfo = {
 			ru: "sizes — размеры контейнера изображения из srcSet для различных брейкпоинтов"
 		}
 	},
-	altFull: {
+	fullAlt: {
 		title: "Alt",
 		weight: 1,
 		type: "string",
@@ -334,7 +336,7 @@ const propInfo = {
 			ru: "alt — текст, который будет отображаться когда изображение недоступно"
 		}
 	},
-	titleFull: {
+	fullTitle: {
 		title: "Title",
 		weight: 1,
 		type: "string",
@@ -344,7 +346,7 @@ const propInfo = {
 			ru: "title — описывает содержимое элемента в виде всплывающей подсказки"
 		}
 	},
-	objectFitFull: {
+	fullObjectFit: {
 		title: "Object fit",
 		weight: 1,
 		type: "string",
@@ -356,7 +358,7 @@ const propInfo = {
 			ru: "object-fit — определяет, как содержимое заменяемого элемента должно заполнять контейнер"
 		}
 	},
-	objectPositionFull: {
+	fullObjectPosition: {
 		title: "Object position",
 		weight: 1,
 		type: "string",
@@ -366,7 +368,7 @@ const propInfo = {
 			ru: "object-position — задаёт положение содержимого замещаемого элемента внутри контейнера относительно координатных осей X и Y"
 		}
 	},
-	loadingFull: {
+	fullLoading: {
 		title: "Loading",
 		weight: 1,
 		type: "string",
@@ -380,10 +382,10 @@ const propInfo = {
 	}
 };
 const defaultProps = {
-	columsCountProp: 1,
-	rowsCountProp: 1,
-	imagesAutoResizeProp: true,
-	showImageProp: false
+	columsNumb: 1,
+	rowsNumb: 1,
+	stretchFull: true,
+	showFullImage: false
 };
 Object.assign(GalleryItem, {
 	overrides,

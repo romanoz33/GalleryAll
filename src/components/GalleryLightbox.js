@@ -95,9 +95,9 @@ const stopEventClick = e => {
 };
 
 const Lightbox = ({
-	defaultFullSrc,
-	somePictureParams,
-	setSomePictureParams,
+	defaultFullImageSrc,
+	someImageFullParams,
+	setSomeImageFullParams,
 	isOpen,
 	setOpen,
 	isBigImage,
@@ -105,8 +105,8 @@ const Lightbox = ({
 	isZoom,
 	setZoom,
 	offScrollProp,
-	clicked,
-	setClicked,
+	imageClicked,
+	setImageClicked,
 	loadImage,
 	fullLoaderStatusProp,
 	...props
@@ -119,9 +119,9 @@ const Lightbox = ({
 		setLoadingFullImage(true);
 		setOpen(false);
 		setZoom(false);
-		setClicked(false);
+		setImageClicked(false);
 		setBigImage(false);
-		setSomePictureParams({});
+		setSomeImageFullParams({});
 		if (offScrollProp) ScrollBlock.enable();
 	}, [offScrollProp, isOpen]);
 	const closeImageOnEsc = useCallback(e => {
@@ -132,9 +132,9 @@ const Lightbox = ({
 		setZoom(!isZoom);
 	}, [isZoom]);
 	useEffect(() => {
-		if (clicked) {
+		if (imageClicked) {
 			setOpen(true);
-			loadImage(somePictureParams.src || defaultFullSrc).then(img => {
+			loadImage(someImageFullParams.src || defaultFullImageSrc).then(img => {
 				setLoadingFullImage(false);
 				if (offScrollProp) ScrollBlock.disable();
 				if (img.width > window.innerWidth) setBigImage(true);
@@ -142,7 +142,7 @@ const Lightbox = ({
 			window.addEventListener('keydown', closeImageOnEsc);
 			return () => window.removeEventListener('keydown', closeImageOnEsc);
 		}
-	}, [clicked]);
+	}, [imageClicked]);
 	const {
 		override,
 		rest
@@ -156,14 +156,14 @@ const Lightbox = ({
 				max-height='80%'
 				min-height='0'
 				min-weight='0'
-				src={isLoadingFullImage ? '' : somePictureParams['src'] || defaultFullSrc}
-				title={isLoadingFullImage ? '' : somePictureParams['title']}
-				alt={isLoadingFullImage ? '' : somePictureParams['alt']}
-				srcset={somePictureParams['srcset']}
-				sizes={somePictureParams['sizes']}
-				object-fit={somePictureParams['object-fit']}
-				object-position={somePictureParams['object-position']}
-				loading={somePictureParams['loading']}
+				src={isLoadingFullImage ? '' : someImageFullParams['src'] || defaultFullImageSrc}
+				title={isLoadingFullImage ? '' : someImageFullParams['title']}
+				alt={isLoadingFullImage ? '' : someImageFullParams['alt']}
+				srcset={someImageFullParams['srcset']}
+				sizes={someImageFullParams['sizes']}
+				object-fit={someImageFullParams['object-fit']}
+				object-position={someImageFullParams['object-position']}
+				loading={someImageFullParams['loading']}
 				onClick={zoomImage}
 				{...isZoom ? isBigImage && zoomInStyles : isBigImage && zoomOutStyles}
 				{...isOpen ? openStyles : closeStyles}

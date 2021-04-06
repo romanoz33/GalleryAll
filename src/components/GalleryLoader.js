@@ -8,14 +8,14 @@ const rotate = keyframes`
     transform: rotate(0deg);
   }
   50% {
-    transform: rotate(180deg); 
-  } 
+    transform: rotate(180deg);
+  }
   100% {
-    transform: rotate(360deg); 
-  } 
+    transform: rotate(360deg);
+  }
 `;
 
-const animation = props => css`
+const animation = () => css`
 	${rotate} 2s linear infinite
 `;
 
@@ -29,14 +29,14 @@ const Rotate = ({
 	...props
 }) => <Animate
 	{...props}
-	icon={AiOutlineLoading}
-	category="ai"
-	size="30px"
+	display={isLoading ? 'block' : 'none'}
 	position="absolute"
 	top="calc(50% - 15px)"
 	left="calc(50% - 15px)"
+	icon={AiOutlineLoading}
+	category="ai"
+	size="30px"
 	z-index="125"
-	display={isLoading ? 'block' : 'none'}
 >
 	{children}
 	 

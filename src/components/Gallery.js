@@ -4,8 +4,8 @@ import { Box, Button } from '@quarkly/widgets';
 import GalleryItem from './GalleryItem';
 import GalleryLightbox from './GalleryLightbox';
 const windowHeightSize = 1.5;
-const defaultPreviewSrc = 'https://media.istockphoto.com/vectors/image-preview-icon-picture-placeholder-for-website-or-uiux-design-vector-id1222357475?k=6&m=1222357475&s=170667a&w=0&h=sCVQ6Qaut-zK8EdXE4s70nmmXRQeK8FmooCqvE32spQ=';
-const defaultFullSrc = 'https://via.placeholder.com/800';
+const defaultPreviewImageSrc = 'https://media.istockphoto.com/vectors/image-preview-icon-picture-placeholder-for-website-or-uiux-design-vector-id1222357475?k=6&m=1222357475&s=170667a&w=0&h=sCVQ6Qaut-zK8EdXE4s70nmmXRQeK8FmooCqvE32spQ=';
+const defaultFullImageSrc = 'https://via.placeholder.com/800';
 
 const loadImage = url => new Promise(resolve => {
 	const img = document.createElement('img');
@@ -55,23 +55,13 @@ const overrides = {
 const changeStrInNumber = str => {
 	const reg = /^[\d.,]+$/;
 	const newStr = str.replace(/\s/g, '');
-
-	if (reg.test(newStr)) {
-		return `${parseInt(newStr)}px`;
-	}
-
+	if (reg.test(newStr)) return `${parseInt(newStr)}px`;
 	return `${newStr}`;
 };
 
 const getAPI = () => {
-	if (typeof window !== "undefined") {
-		return window.QAPI || {};
-	}
-
-	if (typeof global !== "undefined") {
-		return global.QAPI || {};
-	}
-
+	if (typeof window !== "undefined") return window.QAPI || {};
+	if (typeof global !== "undefined") return global.QAPI || {};
 	return {};
 };
 
@@ -100,21 +90,19 @@ const Gallery = ({
 	const [isOpen, setOpen] = useState(false);
 	const [isBigImage, setBigImage] = useState(false);
 	const [isZoom, setZoom] = useState(false); // Храним Размеры превьюшек для выбранного соотношения сторон
-
-	const [ratioSizes, setRatioSizes] = useState({}); // Статус кнопки дозагрузки
+	// const [ratioSizes, setRatioSizes] = useState({});
+	// Статус кнопки дозагрузки
 
 	const [isButtonVisible, setButtonVisible] = useState(loaderFormatProp === 'По кнопке'); // Кол-во изображений, которые нужно загружать
 
 	const [itemsLoadingCount, setItemsLoadingCount] = useState(); // Нажата та ли картинка
 
-	const [clicked, setClicked] = useState(false); // Все параметры определенной картинки
+	const [imageClicked, setImageClicked] = useState(false); // Все параметры определенной картинки
 
-	const [somePictureParams, setSomePictureParams] = useState({}); // Размеры галереи
+	const [someImageFullParams, setSomeImageFullParams] = useState({});
+	const [galleryItemWidth, setGalleryItemWidth] = useState(); // picturesParamsRef.current = [];
 
-	const [galleryItemWidth, setGalleryItemWidth] = useState();
-	picturesParamsRef.current = [];
-
-	const addPictureParams = (index, data) => {
+	const addImageParams = (index, data) => {
 		picturesParamsRef.current[index] = {
 			'src': data.srcFull,
 			'srcset': data.srcSetFull,
@@ -278,13 +266,13 @@ const Gallery = ({
 		key={`${rest['data-qid']}-item-${index}`}
 		index={index}
 		loadImage={loadImage}
-		addPictureParams={addPictureParams}
+		addImageParams={addImageParams}
 		setOpen={setOpen}
-		galleryItemWidth={galleryItemWidth}
-		ratioSizes={ratioSizes}
-		setRatioSizes={setRatioSizes}
-		setSomePictureParams={setSomePictureParams}
-		setClicked={setClicked}
+		galleryItemWidth={galleryItemWidth} // ratioSizes={ratioSizes}
+		// setRatioSizes={setRatioSizes} 
+
+		setSomeImageFullParams={setSomeImageFullParams}
+		setImageClicked={setImageClicked}
 		ratioFormatsProp={ratioFormatsProp}
 		imagesMinWidthProp={imagesMinWidthProp}
 		imagesMaxWidthProp={imagesMaxWidthProp}
@@ -292,8 +280,8 @@ const Gallery = ({
 		columnsCountProp={columnsCountProp}
 		borderWidthProp={borderWidthProp}
 		previewLoaderStatusProp={previewLoaderStatusProp}
-		defaultPreviewSrc={defaultPreviewSrc}
-		defaultFullSrc={defaultFullSrc}
+		defaultPreviewImageSrc={defaultPreviewImageSrc}
+		defaultFullImageSrc={defaultFullImageSrc}
 	/>);
 	return <Box {...rest}>
 		<Box
@@ -330,8 +318,8 @@ const Gallery = ({
 		<GalleryLightbox
 			{...override(`Lightbox`)}
 			loadImage={loadImage}
-			somePictureParams={somePictureParams}
-			setSomePictureParams={setSomePictureParams}
+			someImageFullParams={someImageFullParams}
+			setSomeImageFullParams={setSomeImageFullParams}
 			isOpen={isOpen}
 			setOpen={setOpen}
 			isBigImage={isBigImage}
@@ -339,9 +327,9 @@ const Gallery = ({
 			isZoom={isZoom}
 			setZoom={setZoom}
 			offScrollProp={offScrollProp}
-			clicked={clicked}
-			setClicked={setClicked}
-			defaultFullSrc={defaultFullSrc}
+			imageClicked={imageClicked}
+			setImageClicked={setImageClicked}
+			defaultFullImageSrc={defaultFullImageSrc}
 			fullLoaderStatusProp={fullLoaderStatusProp}
 		/>
 		 
