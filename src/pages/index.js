@@ -19,7 +19,7 @@ export default (() => {
 			ratioFormatsProp="auto"
 			galleryItemCountProp="50"
 			previewLoaderStatusProp={false}
-			aspectRatioProp="1:1"
+			aspectRatioProp="auto"
 			loaderFormatProp="Click"
 			galleryItemNumbProp="47"
 		>

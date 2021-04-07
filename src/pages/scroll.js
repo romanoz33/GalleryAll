@@ -14,7 +14,7 @@ export default (() => {
 			<meta name={"description"} content={"Web site created using quarkly.io"} />
 			<link rel={"shortcut icon"} href={"https://uploads.quarkly.io/readme/cra/favicon-32x32.ico"} type={"image/x-icon"} />
 		</Helmet>
-		<Components.Gallery galleryItemCountProp="38" loaderFormatProp="Scroll" />
+		<Components.Gallery galleryItemCountProp="38" loaderFormatProp="Scroll" galleryItemNumbProp="40" />
 		<Link
 			font={"--capture"}
 			font-size={"10px"}
