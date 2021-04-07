@@ -3,54 +3,52 @@ import { useOverrides } from '@quarkly/components';
 import { Box, Button } from '@quarkly/widgets';
 import GalleryItem from './GalleryItem';
 import GalleryLightbox from './GalleryLightbox';
-const windowHeightSize = 1.5;
-const defaultPreviewImageSrc = 'https://media.istockphoto.com/vectors/image-preview-icon-picture-placeholder-for-website-or-uiux-design-vector-id1222357475?k=6&m=1222357475&s=170667a&w=0&h=sCVQ6Qaut-zK8EdXE4s70nmmXRQeK8FmooCqvE32spQ=';
-const defaultFullImageSrc = 'https://via.placeholder.com/800';
+const windowHeightVisible = 1.5;
+const defaultPreviewImageSrc = 'https://via.placeholder.com/500';
+const defaultFullImageSrc = 'https://via.placeholder.com/1200';
+const overrides = {
+	'Wrapper': {
+		kind: 'Box'
+	},
+	'Item': {
+		kind: 'GalleryItem',
+		props: {
+			'cursor': 'pointer'
+		}
+	},
+	'Lightbox': {
+		kind: 'GalleryLightbox',
+		props: {
+			'height': 0,
+			'min-height': 0
+		}
+	},
+	'Button More': {
+		kind: 'Button',
+		props: {
+			'margin': '20px auto 0',
+			'display': 'block'
+		}
+	},
+	'Button More :Visible': {
+		kind: 'Button',
+		props: {
+			'display': 'block'
+		}
+	},
+	'Button More :Hidden': {
+		kind: 'Button',
+		props: {
+			'display': 'none'
+		}
+	}
+};
 
 const loadImage = url => new Promise(resolve => {
 	const img = document.createElement('img');
 	img.addEventListener('load', () => resolve(img));
 	img.src = url;
 });
-
-const overrides = {
-	'Wrapper': {
-		'kind': 'Box'
-	},
-	'Item': {
-		'kind': 'GalleryItem',
-		'props': {
-			'cursor': 'pointer'
-		}
-	},
-	'Lightbox': {
-		'kind': 'GalleryLightbox',
-		'props': {
-			'height': 0,
-			'min-height': 0
-		}
-	},
-	'Button More': {
-		'kind': 'Button',
-		'props': {
-			'margin': '0 auto',
-			'display': 'block',
-			'margin-top': '20px'
-		}
-	},
-	'Button More :Visible': {
-		'kind': 'Button',
-		'props': {
-			'display': 'block'
-		}
-	},
-	'Button More :Hidden': {
-		'kind': 'Button',
-		'props': {
-			'display': 'none'
-		}
-	}
-};
 
 const changeStrInNumber = str => {
 	const reg = /^[\d.,]+$/;
@@ -68,30 +66,25 @@ const getAPI = () => {
 const Gallery = ({
 	galleryItemCountProp,
 	columnsCountProp,
-	lgColumnsCountProp,
-	mdColumnsCountProp,
-	smColumnsCountProp,
-	ratioFormatsProp,
+	aspectRatioProp,
 	loaderFormatProp,
 	autoFillInProp,
 	imagesMaxWidthProp,
 	imagesMinWidthProp,
 	borderWidthProp,
 	offScrollProp,
-	previewLoaderStatusProp,
-	fullLoaderStatusProp,
+	hideLoaderPreviewImage,
+	hideLoaderFullImage,
 	...props
 }) => {
-	const galleryRef = useRef();
+	const galleryRef = useRef(null);
 	const picturesParamsRef = useRef([]);
 	const lastRan = useRef(Date.now());
 	const scrollLoadCountRef = useRef(1);
 	const clickLoadCountRef = useRef(1);
 	const [isOpen, setOpen] = useState(false);
 	const [isBigImage, setBigImage] = useState(false);
-	const [isZoom, setZoom] = useState(false); // Храним Размеры превьюшек для выбранного соотношения сторон
-	// const [ratioSizes, setRatioSizes] = useState({});
-	// Статус кнопки дозагрузки
+	const [isZoom, setZoom] = useState(false); // Статус кнопки дозагрузки
 
 	const [isButtonVisible, setButtonVisible] = useState(loaderFormatProp === 'По кнопке'); // Кол-во изображений, которые нужно загружать
 
@@ -163,7 +156,7 @@ const Gallery = ({
 
 	const getItemCountOnView = useCallback(galleryWidth => {
 		// Высота 1.5 окна
-		const visibleSpace = window.innerHeight * windowHeightSize; // Кол-во рядов. Округляем в большую сторону 
+		const visibleSpace = window.innerHeight * windowHeightVisible; // Кол-во рядов. Округляем в большую сторону 
 
 		const visibleRows = Math.ceil(visibleSpace / getItemSize(galleryWidth)); // Возвращаем кол-во изображений
 
@@ -174,7 +167,7 @@ const Gallery = ({
 		}
 
 		return items;
-	}, [galleryItemCountProp, columnsCountProp, borderWidthProp, loaderFormatProp, ratioFormatsProp, autoFillInProp, imagesMaxWidthProp, imagesMinWidthProp]); // Функция дозагрузки по клику или скролу
+	}, [galleryItemCountProp, columnsCountProp, borderWidthProp, loaderFormatProp, aspectRatioProp, autoFillInProp, imagesMaxWidthProp, imagesMinWidthProp]); // Функция дозагрузки по клику или скролу
 
 	const loadMore = useCallback(type => {
 		const gallerySizes = galleryRef.current.getBoundingClientRect();
@@ -225,24 +218,24 @@ const Gallery = ({
 		} = getAPI();
 
 		if (mode === 'development') {
-			if (loaderFormatProp === 'Все сразу' || loaderFormatProp === 'При скроле') {
+			if (loaderFormatProp === 'All' || loaderFormatProp === 'Scroll') {
 				setItemsLoadingCount(galleryItemCountNumb);
 				setButtonVisible(false);
-			} else if (loaderFormatProp === 'По кнопке') {
+			} else if (loaderFormatProp === 'Click') {
 				setItemsLoadingCount(items);
 				setButtonVisible(items !== galleryItemCountNumb);
 			}
 		} else if (mode === 'production') {
-			if (loaderFormatProp === 'Все сразу') {
+			if (loaderFormatProp === 'All') {
 				setItemsLoadingCount(galleryItemCountNumb);
 				setButtonVisible(false);
-			} else if (loaderFormatProp === 'При скроле') {
+			} else if (loaderFormatProp === 'Scroll') {
 				window.addEventListener('scroll', loadOnScroll);
 				window.addEventListener('resize', loadOnScroll);
 				window.addEventListener('orientationchange', loadOnScroll);
 				setButtonVisible(false);
 				setItemsLoadingCount(items);
-			} else if (loaderFormatProp === 'По кнопке') {
+			} else if (loaderFormatProp === 'Click') {
 				setItemsLoadingCount(items);
 				setButtonVisible(items !== galleryItemCountNumb);
 			}
@@ -256,7 +249,7 @@ const Gallery = ({
 			window.removeEventListener('resize', loadOnScroll);
 			window.removeEventListener('orientationchange', loadOnScroll);
 		};
-	}, [galleryItemCountProp, columnsCountProp, borderWidthProp, loaderFormatProp, ratioFormatsProp, autoFillInProp, imagesMaxWidthProp, imagesMinWidthProp]);
+	}, [galleryItemCountProp, columnsCountProp, borderWidthProp, loaderFormatProp, aspectRatioProp, autoFillInProp, imagesMaxWidthProp, imagesMinWidthProp]);
 	const {
 		override,
 		rest
@@ -268,18 +261,16 @@ const Gallery = ({
 		loadImage={loadImage}
 		addImageParams={addImageParams}
 		setOpen={setOpen}
-		galleryItemWidth={galleryItemWidth} // ratioSizes={ratioSizes}
-		// setRatioSizes={setRatioSizes} 
-
+		galleryItemWidth={galleryItemWidth}
 		setSomeImageFullParams={setSomeImageFullParams}
 		setImageClicked={setImageClicked}
-		ratioFormatsProp={ratioFormatsProp}
+		aspectRatioProp={aspectRatioProp}
 		imagesMinWidthProp={imagesMinWidthProp}
 		imagesMaxWidthProp={imagesMaxWidthProp}
 		autoFillInProp={autoFillInProp}
 		columnsCountProp={columnsCountProp}
 		borderWidthProp={borderWidthProp}
-		previewLoaderStatusProp={previewLoaderStatusProp}
+		hideLoaderPreviewImage={hideLoaderPreviewImage}
 		defaultPreviewImageSrc={defaultPreviewImageSrc}
 		defaultFullImageSrc={defaultFullImageSrc}
 	/>);
@@ -291,22 +282,7 @@ const Gallery = ({
 			grid-auto-flow={autoFillInProp ? 'dense' : 'row'}
 			grid-template-columns={`repeat(${columnsCountProp}, 
           minmax(${changeStrInNumber(imagesMinWidthProp)}, 
-          ${changeStrInNumber(imagesMaxWidthProp)}))`} // lg-grid-template-columns={
-			//   `repeat(${lgColumnsCountProp}, 
-			//   minmax(${changeStrInNumber(imagesMinWidthProp)}, 
-			//   ${changeStrInNumber(imagesMaxWidthProp)}))`
-			// }
-			// md-grid-template-columns={
-			//   `repeat(${mdColumnsCountProp}, 
-			//   minmax(${changeStrInNumber(imagesMinWidthProp)},  
-			//   ${changeStrInNumber(imagesMaxWidthProp)}))`
-			// }
-			// sm-grid-template-columns={
-			//   `repeat(${smColumnsCountProp}, 
-			//   minmax(${changeStrInNumber(imagesMinWidthProp)}, 
-			//   ${changeStrInNumber(imagesMaxWidthProp)}))`
-			// }
-
+          ${changeStrInNumber(imagesMaxWidthProp)}))`}
 		>
 			{items}
 		</Box>
@@ -330,7 +306,7 @@ const Gallery = ({
 			imageClicked={imageClicked}
 			setImageClicked={setImageClicked}
 			defaultFullImageSrc={defaultFullImageSrc}
-			fullLoaderStatusProp={fullLoaderStatusProp}
+			hideLoaderFullImage={hideLoaderFullImage}
 		/>
 		 
 	</Box>;
@@ -355,24 +331,6 @@ const propInfo = {
 		category: 'Gallery',
 		weight: 1
 	},
-	// lgColumnsCountProp: {
-	// 	title: 'lg',
-	// 	control: 'input',
-	// 	category: 'Gallery',
-	// 	weight: .3
-	// },
-	// mdColumnsCountProp: {
-	// 	title: 'md',
-	// 	control: 'input',
-	// 	category: 'Gallery',
-	// 	weight: .3
-	// },
-	// smColumnsCountProp: {
-	// 	title: 'sm',
-	// 	control: 'input',
-	// 	category: 'Gallery',
-	// 	weight: .3
-	// },
 	borderWidthProp: {
 		title: 'Ширина отступов',
 		description: {
@@ -397,11 +355,29 @@ const propInfo = {
 			en: 'Как загружать изображения?'
 		},
 		control: 'radio-group',
-		variants: ['Все сразу', 'При скроле', 'По кнопке'],
+		variants: [{
+			title: {
+				en: 'Все сразу',
+				ru: 'Все сразу'
+			},
+			value: 'All'
+		}, {
+			title: {
+				en: 'При скроле',
+				ru: 'При скроле'
+			},
+			value: 'Scroll'
+		}, {
+			title: {
+				en: 'По кнопке',
+				ru: 'По кнопке'
+			},
+			value: 'Click'
+		}],
 		category: 'images',
 		weight: 1
 	},
-	ratioFormatsProp: {
+	aspectRatioProp: {
 		title: 'Соотношение сторон',
 		description: {
 			en: 'Выберите соотношение сторон изображений'
@@ -429,7 +405,7 @@ const propInfo = {
 		category: 'images',
 		weight: 1
 	},
-	previewLoaderStatusProp: {
+	hideLoaderPreviewImage: {
 		title: 'Отключить лоадер для превью',
 		description: {
 			en: 'Отключить лоадер для превью изображений'
@@ -447,7 +423,7 @@ const propInfo = {
 		category: 'Lightbox',
 		weight: 1
 	},
-	fullLoaderStatusProp: {
+	hideLoaderFullImage: {
 		title: 'Отключить лоадер для полной картинки',
 		description: {
 			en: 'Отключить лоадер для полной картинки'
@@ -460,15 +436,12 @@ const propInfo = {
 const defaultProps = {
 	galleryItemCountProp: 8,
 	columnsCountProp: 4,
-	lgColumnsCountProp: 3,
-	mdColumnsCountProp: 2,
-	smColumnsCountProp: 1,
-	ratioFormatsProp: 'auto',
-	loaderFormatProp: 'Все сразу',
+	aspectRatioProp: 'auto',
+	loaderFormatProp: 'All',
 	autoFillInProp: true,
 	imagesAutoResizeProp: false,
-	previewLoaderStatusProp: false,
-	fullLoaderStatusProp: false,
+	hideLoaderPreviewImage: false,
+	hideLoaderFullImage: false,
 	imagesMinWidthProp: '80',
 	imagesMaxWidthProp: '1fr',
 	borderWidthProp: '10',

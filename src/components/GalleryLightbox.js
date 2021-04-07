@@ -108,7 +108,7 @@ const Lightbox = ({
 	imageClicked,
 	setImageClicked,
 	loadImage,
-	fullLoaderStatusProp,
+	hideLoaderFullImage,
 	...props
 }) => {
 	const [isLoadingFullImage, setLoadingFullImage] = useState(true);
@@ -169,7 +169,7 @@ const Lightbox = ({
 				{...isOpen ? openStyles : closeStyles}
 				{...override('Image')}
 			/>
-			{!fullLoaderStatusProp && <GalleryLoader {...override('Loader')} isLoading={isLoadingFullImage} />}
+			{!hideLoaderFullImage && <GalleryLoader {...override('Loader')} isLoading={isLoadingFullImage} />}
 		</Box>
 	</Box>;
 };

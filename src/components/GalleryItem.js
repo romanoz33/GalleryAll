@@ -37,13 +37,13 @@ const GalleryItem = ({
 	galleryItemWidth,
 	setSomeImageFullParams,
 	setImageClicked,
-	ratioFormatsProp,
+	aspectRatioProp,
 	imagesMinWidthProp,
 	imagesMaxWidthProp,
 	autoFillInProp,
 	columnsCountProp,
 	borderWidthProp,
-	previewLoaderStatusProp,
+	hideLoaderPreviewImage,
 	...props
 }) => {
 	const boxRef = useRef();
@@ -52,13 +52,15 @@ const GalleryItem = ({
 		width: 'auto',
 		height: 'auto'
 	});
-	const correctSrcPreview = useMemo(() => previewSrc || defaultPreviewImageSrc, [previewSrc]);
+	const correctSrcPreview = useMemo(() => previewSrc || defaultPreviewImageSrc, [previewSrc, isLoadingPreview]);
 	useEffect(() => {
 		setOpen(showFullImage);
 	}, [showFullImage]);
 	useEffect(() => {
-		loadImage(correctSrcPreview).then(() => setLoadingPreview(false));
-	}, []);
+		loadImage(correctSrcPreview).then(() => {
+			setLoadingPreview(false);
+		});
+	}, [hideLoaderPreviewImage]);
 	useEffect(() => {
 		addImageParams(index, {
 			fullSrc,
@@ -125,11 +127,11 @@ const GalleryItem = ({
 		}
 
 		setAspectRatioStyles(params);
-	}, [ratioFormatsProp, columnsCountProp, borderWidthProp, imagesMinWidthProp, imagesMaxWidthProp, autoFillInProp, galleryItemWidth]);
+	}, [aspectRatioProp, columnsCountProp, borderWidthProp, imagesMinWidthProp, imagesMaxWidthProp, autoFillInProp, galleryItemWidth]);
 	useEffect(() => {
 		const itemSizes = boxRef.current.getBoundingClientRect();
-		changeAspectRatio(ratioFormatsProp, itemSizes);
-	}, [boxRef.current, ratioFormatsProp, columnsCountProp, borderWidthProp, imagesMinWidthProp, imagesMaxWidthProp, autoFillInProp, galleryItemWidth]);
+		changeAspectRatio(aspectRatioProp, itemSizes);
+	}, [boxRef.current, aspectRatioProp, columnsCountProp, borderWidthProp, imagesMinWidthProp, imagesMaxWidthProp, autoFillInProp, galleryItemWidth]);
 	const {
 		override,
 		rest
@@ -137,9 +139,9 @@ const GalleryItem = ({
 	return <Box
 		ref={boxRef}
 		height='auto'
-		position='relative'
 		min-width='auto'
 		min-height='auto'
+		position='relative'
 		grid-column={`span ${columsNumb}`}
 		grid-row={`span ${rowsNumb}`}
 		{...rest}
@@ -162,8 +164,7 @@ const GalleryItem = ({
 			loading={!isLoadingPreview && previewLoading}
 			{...aspectRatioStyles}
 		/>
-		     
-		{!previewLoaderStatusProp && <GalleryLoader {...override('Loader')} isLoadingPreview={isLoadingPreview} />}
+		{!hideLoaderPreviewImage && <GalleryLoader {...override('Loader')} isLoading={isLoadingPreview} />}
 	</Box>;
 };
 
@@ -175,7 +176,7 @@ const propInfo = {
 		},
 		control: 'input',
 		category: 'Main',
-		weight: 1
+		weight: .5
 	},
 	rowsNumb: {
 		title: 'Высота в колонках',
@@ -184,7 +185,7 @@ const propInfo = {
 		},
 		control: 'input',
 		category: 'Main',
-		weight: 1
+		weight: .5
 	},
 	stretchFull: {
 		title: 'Растянуть на всю ширину и высоту',

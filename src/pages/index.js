@@ -15,7 +15,13 @@ export default (() => {
 			<meta name={"description"} content={"Web site created using quarkly.io"} />
 			<link rel={"shortcut icon"} href={"https://uploads.quarkly.io/readme/cra/favicon-32x32.ico"} type={"image/x-icon"} />
 		</Helmet>
-		<Components.Gallery ratioFormatsProp="1:1" galleryItemCountProp="11" previewLoaderStatusProp={false}>
+		<Components.Gallery
+			ratioFormatsProp="auto"
+			galleryItemCountProp="41"
+			previewLoaderStatusProp={false}
+			aspectRatioProp="1:1"
+			loaderFormatProp="Click"
+		>
 			<Override
 				slot="Item 1"
 				srcFull="https://images.unsplash.com/photo-1617623345634-f9a870bc30e4?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000"
@@ -35,8 +41,9 @@ export default (() => {
 			/>
 			<Override slot="Item 3" srcFull="https://images.unsplash.com/photo-1617678578939-43db129bff94?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" srcPreview="https://images.unsplash.com/photo-1617649002577-8777da6c7969?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&w=2000" />
 			<Override slot="Item" />
-			<Override slot="Item 5" srcPreview="https://images.unsplash.com/photo-1617697939870-2c360dc9080a?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" srcFull="https://images.unsplash.com/photo-1617697939870-2c360dc9080a?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" />
+			<Override slot="Item 5" srcPreview="https://images.unsplash.com/photo-1617697939870-2c360dc9080a?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" srcFull="https://images.unsplash.com/photo-1617697939870-2c360dc9080a?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" previewSrc="https://images.unsplash.com/photo-1617654697990-b10c0d2e989b?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" />
 			<Override slot="Item 6" fullSrc="https://images.unsplash.com/photo-1616384038522-5c5d32985c5c?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" previewSrc="https://images.unsplash.com/photo-1617638601980-5894017a9446?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" />
+			<Override slot="Item 7" previewSrc="https://images.unsplash.com/photo-1617713807246-9b9e55ef560e?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&h=2000" />
 		</Components.Gallery>
 		<Link
 			font={"--capture"}
