@@ -20,7 +20,7 @@ export default (() => {
 			galleryItemCountProp="50"
 			previewLoaderStatusProp={false}
 			aspectRatioProp="auto"
-			loaderFormatProp="Click"
+			loaderFormatProp="Scroll"
 			galleryItemNumbProp="47"
 		>
 			<Override

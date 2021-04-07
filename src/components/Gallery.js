@@ -193,35 +193,34 @@ const Gallery = ({
 		const items = getItemNumbOnView(gallerySizes.width);
 		const {
 			mode
-		} = getAPI();
+		} = getAPI(); // if (mode === 'development') {
+		// 	if (loaderFormatProp === 'All' || loaderFormatProp === 'Scroll') {
+		// 		setItemsLoadingNumb(galleryItemCountNumb);
+		// 		setButtonVisible(false);
+		// 	} 
+		// 	else if (loaderFormatProp === 'Click') {
+		// 		setItemsLoadingNumb(items);
+		// 		setButtonVisible(items !== galleryItemCountNumb);  
+		// 	}
+		// }
+		// else if (mode === 'production') {
 
-		if (mode === 'development') {
-			if (loaderFormatProp === 'All' || loaderFormatProp === 'Scroll') {
-				setItemsLoadingNumb(galleryItemCountNumb);
-				setButtonVisible(false);
-			} else if (loaderFormatProp === 'Click') {
-				setItemsLoadingNumb(items);
-				setButtonVisible(items !== galleryItemCountNumb);
-			}
-		} else if (mode === 'production') {
-			if (loaderFormatProp === 'All') {
-				setItemsLoadingNumb(galleryItemCountNumb);
-				setButtonVisible(false);
-			} else if (loaderFormatProp === 'Scroll') {
-				window.addEventListener('scroll', loadOnScroll);
-				window.addEventListener('resize', loadOnScroll);
-				window.addEventListener('orientationchange', loadOnScroll);
-				setButtonVisible(false);
-				setItemsLoadingNumb(items);
-			} else if (loaderFormatProp === 'Click') {
-				setItemsLoadingNumb(items);
-				setButtonVisible(items !== galleryItemCountNumb);
-			}
-
-			;
+		if (loaderFormatProp === 'All') {
+			setItemsLoadingNumb(galleryItemCountNumb);
+			setButtonVisible(false);
+		} else if (loaderFormatProp === 'Scroll') {
+			window.addEventListener('scroll', loadOnScroll);
+			window.addEventListener('resize', loadOnScroll);
+			window.addEventListener('orientationchange', loadOnScroll);
+			setButtonVisible(false);
+			setItemsLoadingNumb(items);
+		} else if (loaderFormatProp === 'Click') {
+			setItemsLoadingNumb(items);
+			setButtonVisible(items !== galleryItemCountNumb);
 		}
 
-		;
+		; // };
+
 		return () => {
 			window.removeEventListener('scroll', loadOnScroll);
 			window.removeEventListener('resize', loadOnScroll);
