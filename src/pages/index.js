@@ -17,10 +17,11 @@ export default (() => {
 		</Helmet>
 		<Components.Gallery
 			ratioFormatsProp="auto"
-			galleryItemCountProp="41"
+			galleryItemCountProp="50"
 			previewLoaderStatusProp={false}
 			aspectRatioProp="1:1"
 			loaderFormatProp="Click"
+			galleryItemNumbProp="47"
 		>
 			<Override
 				slot="Item 1"
